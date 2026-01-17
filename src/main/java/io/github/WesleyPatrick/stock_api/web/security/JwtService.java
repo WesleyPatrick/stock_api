@@ -44,6 +44,22 @@ public class JwtService {
         return jwtVerifier.verify(token);
     }
 
+    public String generateRefreshToken(User user) {
+        Instant now = Instant.now();
+        Instant expiresAt = now.plus(jwtProps.accessDays(), ChronoUnit.DAYS);
 
+        return JWT.create()
+                .withIssuer(jwtProps.issuer())
+                .withSubject(user.getEmail())
+                .withIssuedAt(now)
+                .withExpiresAt(expiresAt)
+                .withClaim("userId", user.getId().toString())
+                .withClaim("type", "refresh")
+                .sign(algorithm);
+    }
+
+    public boolean isRefreshToken(DecodedJWT jwt) {
+        return "refresh".equals(jwt.getClaim("type").asString());
+    }
 
 }

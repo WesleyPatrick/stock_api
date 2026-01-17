@@ -9,9 +9,12 @@ public class LoginMapper {
 
     private static final long SIXTY_SECONS = 60;
 
-    public LoginResponse toLoginResponse(String token, Long accessMinutes) {
+    public LoginResponse toLoginResponse(String token, Long accessMinutes, String refreshToken) {
         return new LoginResponse(
                 token,
-                accessMinutes / SIXTY_SECONS + " min");
+                accessMinutes / SIXTY_SECONS + " min",
+                refreshToken
+                );
+
     }
 }

@@ -20,4 +20,11 @@ app:
   jwt:
     secret: ${JWT_SECRET}
     accessMinutes: ${JWT_EXPIRES_SECONDS:3600}
+    accessDays: ${JWT_EXPIRES_DAYS}
     issuer: ${JWT_ISSUER}
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

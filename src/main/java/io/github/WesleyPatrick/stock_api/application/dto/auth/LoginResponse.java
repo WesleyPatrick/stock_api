@@ -6,10 +6,9 @@ public record LoginResponse(
         String accessToken,
 
         @Schema(example = "900")
-        String expiresIn
+        String expiresIn,
 
-// TODO: add this later
-//        @Schema(example = "eyJhbGciOiJIUzI1NiJ9...")
-//        String refreshToken
+        @Schema(example = "eyJhbGciOiJIUzI1NiJ9...")
+        String refreshToken
 ) {
 }
