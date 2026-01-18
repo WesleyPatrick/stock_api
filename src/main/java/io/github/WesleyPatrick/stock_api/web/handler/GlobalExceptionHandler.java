@@ -2,6 +2,7 @@ package io.github.WesleyPatrick.stock_api.web.handler;
 
 import io.github.WesleyPatrick.stock_api.application.dto.error.ApiError;
 import io.github.WesleyPatrick.stock_api.application.dto.error.ApiValidationError;
+import io.github.WesleyPatrick.stock_api.domain.exception.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -31,6 +32,13 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiError> handleUnauthorized(UnauthorizedException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                new ApiError(401, "Não autorizado"));
+        }
+
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiError> handleBadJson(HttpMessageNotReadableException ex) {

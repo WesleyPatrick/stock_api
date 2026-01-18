@@ -56,7 +56,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
             var role = decodedJWT.getClaim("role").asString();
 
-            var authority = new SimpleGrantedAuthority(role);
+            var authority = new SimpleGrantedAuthority("ROLE_" + role);
 
             var auth = new UsernamePasswordAuthenticationToken(subject, null, List.of(authority));
             SecurityContextHolder.getContext().setAuthentication(auth);

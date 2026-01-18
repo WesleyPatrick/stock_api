@@ -7,6 +7,7 @@ import io.github.WesleyPatrick.stock_api.application.usecase.auth.LoginUseCase;
 import io.github.WesleyPatrick.stock_api.domain.model.User;
 import io.github.WesleyPatrick.stock_api.infra.config.props.JwtProps;
 import io.github.WesleyPatrick.stock_api.web.security.JwtService;
+import io.github.WesleyPatrick.stock_api.web.security.RefreshTokenService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,16 +20,21 @@ public class LoginUseCaseImpl implements LoginUseCase {
     private JwtService jwtService;
     private JwtProps props;
     private LoginMapper loginMapper;
+    private RefreshTokenService refreshTokenService;
 
-    public LoginUseCaseImpl(AuthenticationManager am,  JwtService jwtService, JwtProps props, LoginMapper loginMapper) {
+    public LoginUseCaseImpl(AuthenticationManager am,  JwtService jwtService, JwtProps props, LoginMapper loginMapper, RefreshTokenService refreshTokenService) {
         this.am = am;
         this.jwtService = jwtService;
         this.props = props;
         this.loginMapper = loginMapper;
+        this.refreshTokenService = refreshTokenService;
+
     }
 
     @Override
     public LoginResponse execute(LoginRequest loginRequest) {
+
+        System.out.println(loginRequest);
 
         UsernamePasswordAuthenticationToken upat = new UsernamePasswordAuthenticationToken(
                 loginRequest.email(),
@@ -38,10 +44,13 @@ public class LoginUseCaseImpl implements LoginUseCase {
         Authentication auth = am.authenticate(upat);
 
         User user = (User) auth.getPrincipal();
+
         String token = jwtService.generateToken(user);
+        String newRefreshToken = jwtService.generateRefreshToken(user);
+        refreshTokenService.upsert(user, newRefreshToken);
 
-        System.out.println(props.toString());
 
-        return loginMapper.toLoginResponse(token, props.accessMinutes());
+
+        return loginMapper.toLoginResponse(token, props.accessMinutes(), newRefreshToken);
     }
 }
