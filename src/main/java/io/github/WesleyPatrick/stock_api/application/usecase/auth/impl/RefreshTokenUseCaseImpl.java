@@ -37,28 +37,18 @@ public class RefreshTokenUseCaseImpl implements RefreshTokenUseCase {
     @Override
     public LoginResponse execute(RefreshRequest refreshRequest) {
 
-        System.out.println(refreshRequest);
         DecodedJWT decoded = jwtService.verifyToken(refreshRequest.refreshToken());
 
-        System.out.println(decoded);
-
-        System.out.println(jwtService.isRefreshToken(decoded));
         if (!jwtService.isRefreshToken(decoded)) {
-            System.out.println("ta aqui dentro");
             throw new UnauthorizedException("Invalid refresh token");
         }
 
         User user = refreshTokenService.getUserFromToken(refreshRequest.refreshToken());
 
-        System.out.println(user);
-
         String newAccessToken = jwtService.generateToken(user);
         String newRefreshToken = jwtService.generateRefreshToken(user);
 
-        System.out.println(newRefreshToken);
-        System.out.println(newAccessToken);
-
-        refreshTokenService.upsert(user, newAccessToken);
+        refreshTokenService.upsert(user, newRefreshToken);
 
         return loginMapper.toLoginResponse(newAccessToken, jwtProps.accessMinutes(), newRefreshToken);
     }

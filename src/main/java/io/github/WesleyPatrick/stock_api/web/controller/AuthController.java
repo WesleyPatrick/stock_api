@@ -55,7 +55,6 @@ public class AuthController {
     })
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponse> refresh(@RequestBody @Valid RefreshRequest refreshRequest){
-        System.out.println(refreshRequest.toString());
         return ResponseEntity.ok(refreshTokenUseCase.execute(refreshRequest));
     }
 

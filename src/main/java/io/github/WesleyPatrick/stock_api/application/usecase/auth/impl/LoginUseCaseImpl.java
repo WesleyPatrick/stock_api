@@ -47,7 +47,7 @@ public class LoginUseCaseImpl implements LoginUseCase {
 
         String token = jwtService.generateToken(user);
         String newRefreshToken = jwtService.generateRefreshToken(user);
-        refreshTokenService.upsert(user, token);
+        refreshTokenService.upsert(user, newRefreshToken);
 
 
 
