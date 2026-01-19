@@ -43,26 +43,28 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
+            return;
         }
 
-        String jwt = authHeader.substring(7);
+        String token = authorizationHeader.substring("Bearer ".length());
+
 
         try {
-            DecodedJWT decodedJWT = jwtService.verifyToken(jwt);
-            String subject = decodedJWT.getSubject();
+            DecodedJWT jwt = jwtService.verifyToken(token);
 
-            var role = decodedJWT.getClaim("role").asString();
+            String subject = jwt.getSubject();
+            var role = jwt.getClaim("role").asString();
 
             var authority = new SimpleGrantedAuthority("ROLE_" + role);
 
-            var auth = new UsernamePasswordAuthenticationToken(subject, null, List.of(authority));
+            var auth =  new UsernamePasswordAuthenticationToken(subject, null, List.of(authority));
             SecurityContextHolder.getContext().setAuthentication(auth);
             filterChain.doFilter(request, response);
-        }  catch (Exception e) {
 
+        } catch (Exception e) {
             SecurityContextHolder.clearContext();
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

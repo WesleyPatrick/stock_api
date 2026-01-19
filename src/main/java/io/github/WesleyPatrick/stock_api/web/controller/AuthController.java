@@ -5,6 +5,7 @@ import io.github.WesleyPatrick.stock_api.application.dto.auth.LoginRequest;
 import io.github.WesleyPatrick.stock_api.application.dto.auth.LoginResponse;
 import io.github.WesleyPatrick.stock_api.application.dto.auth.RefreshRequest;
 import io.github.WesleyPatrick.stock_api.application.usecase.auth.LoginUseCase;
+import io.github.WesleyPatrick.stock_api.application.usecase.auth.LogoutUseCase;
 import io.github.WesleyPatrick.stock_api.application.usecase.auth.RefreshTokenUseCase;
 import io.github.WesleyPatrick.stock_api.web.security.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,14 +13,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -29,6 +29,8 @@ public class AuthController {
     LoginUseCase loginUseCase;
     @Autowired
     RefreshTokenUseCase refreshTokenUseCase;
+    @Autowired
+    LogoutUseCase logoutUseCase;
 
 
     @Operation(summary = "Login do usuário")
@@ -56,6 +58,20 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponse> refresh(@RequestBody @Valid RefreshRequest refreshRequest){
         return ResponseEntity.ok(refreshTokenUseCase.execute(refreshRequest));
+    }
+
+
+    @Operation(summary = "Logout do usuário (revoga refresh token)")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Logout realizado", content = @Content()),
+            @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content())
+    })
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(Authentication auth) {
+        logoutUseCase.execute(auth);
+        return ResponseEntity.noContent().build();
     }
 
 }
