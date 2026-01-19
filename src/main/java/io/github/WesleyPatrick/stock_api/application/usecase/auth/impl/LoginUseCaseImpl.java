@@ -42,6 +42,7 @@ public class LoginUseCaseImpl implements LoginUseCase {
         );
 
         Authentication auth = am.authenticate(upat);
+        System.out.println(auth.getName());
 
         User user = (User) auth.getPrincipal();
 

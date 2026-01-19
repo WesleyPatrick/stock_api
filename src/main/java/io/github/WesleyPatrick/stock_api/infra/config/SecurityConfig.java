@@ -1,6 +1,8 @@
 package io.github.WesleyPatrick.stock_api.infra.config;
 
 import io.github.WesleyPatrick.stock_api.web.security.JwtFilter;
+import io.github.WesleyPatrick.stock_api.web.security.handler.RestAccessDeniedHandler;
+import io.github.WesleyPatrick.stock_api.web.security.handler.RestAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,11 +29,16 @@ public class SecurityConfig {
     private JwtFilter jwtFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, RestAccessDeniedHandler accessDeniedHandler,
+                                                   RestAuthenticationEntryPoint entryPoint) throws Exception {
         return http.
                 csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> {})
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler(accessDeniedHandler)
+                        .authenticationEntryPoint(entryPoint)
+                )
                 .authorizeHttpRequests(ah -> ah.requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll()
