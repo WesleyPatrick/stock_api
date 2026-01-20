@@ -2,6 +2,8 @@ package io.github.WesleyPatrick.stock_api.web.handler;
 
 import io.github.WesleyPatrick.stock_api.application.dto.error.ApiError;
 import io.github.WesleyPatrick.stock_api.application.dto.error.ApiValidationError;
+import io.github.WesleyPatrick.stock_api.domain.exception.DuplicateResourceException;
+import io.github.WesleyPatrick.stock_api.domain.exception.NotFoundException;
 import io.github.WesleyPatrick.stock_api.domain.exception.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,6 +75,22 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleCredentialsExpired() {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new ApiError(403, "Senha expirada"));
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ApiError> handleDuplicateResource(DuplicateResourceException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiError(403, ex.getMessage()));
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFound(NotFoundException ex) {
+        ApiError err = new ApiError(
+                404,
+                "NOT_FOUND: " +
+                ex.getMessage()
+        );
+        return ResponseEntity.status(404).body(err);
     }
 
 }
