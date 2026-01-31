@@ -5,6 +5,7 @@ import io.github.WesleyPatrick.stock_api.application.dto.product.CreateProductRe
 import io.github.WesleyPatrick.stock_api.application.dto.product.ProductFilters;
 import io.github.WesleyPatrick.stock_api.application.dto.product.ProductResponse;
 import io.github.WesleyPatrick.stock_api.application.usecase.product.CreateProductUseCase;
+import io.github.WesleyPatrick.stock_api.application.usecase.product.DeleteProductUseCase;
 import io.github.WesleyPatrick.stock_api.application.usecase.product.FindAllProductsUseCase;
 import io.github.WesleyPatrick.stock_api.application.usecase.product.FindProductByIdUseCase;
 import io.github.WesleyPatrick.stock_api.domain.model.Product;
@@ -38,12 +39,14 @@ public class ProductController implements BaseController {
     private CreateProductUseCase createProductUseCase;
     private FindProductByIdUseCase findProductByIdUseCase;
     private FindAllProductsUseCase findAllProductsUseCase;
+    private DeleteProductUseCase deleteProductUseCase;
 
-    public ProductController(CreateProductUseCase createProductUseCase,  FindProductByIdUseCase findProductByIdUseCase, FindAllProductsUseCase findAllProductsUseCase)
+    public ProductController(CreateProductUseCase createProductUseCase,  FindProductByIdUseCase findProductByIdUseCase, FindAllProductsUseCase findAllProductsUseCase,  DeleteProductUseCase deleteProductUseCase)
     {
         this.createProductUseCase = createProductUseCase;
         this.findProductByIdUseCase = findProductByIdUseCase;
         this.findAllProductsUseCase = findAllProductsUseCase;
+        this.deleteProductUseCase = deleteProductUseCase;
     }
 
     @Operation(summary = "Criar produto")
@@ -92,5 +95,21 @@ public class ProductController implements BaseController {
         PageResponse<ProductResponse> productResponsePage = findAllProductsUseCase.execute(filters, pageable);
         return ResponseEntity.ok().body(productResponsePage);
     }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Deletar produtos")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Produto Deletado"
+            ),
+            @ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado")
+    })
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        deleteProductUseCase.execute(id);
+        return ResponseEntity.noContent().build();
+    }
+
 
 }
