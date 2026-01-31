@@ -4,10 +4,7 @@ import io.github.WesleyPatrick.stock_api.application.dto.page.PageResponse;
 import io.github.WesleyPatrick.stock_api.application.dto.product.CreateProductRequest;
 import io.github.WesleyPatrick.stock_api.application.dto.product.ProductFilters;
 import io.github.WesleyPatrick.stock_api.application.dto.product.ProductResponse;
-import io.github.WesleyPatrick.stock_api.application.usecase.product.CreateProductUseCase;
-import io.github.WesleyPatrick.stock_api.application.usecase.product.DeleteProductUseCase;
-import io.github.WesleyPatrick.stock_api.application.usecase.product.FindAllProductsUseCase;
-import io.github.WesleyPatrick.stock_api.application.usecase.product.FindProductByIdUseCase;
+import io.github.WesleyPatrick.stock_api.application.usecase.product.*;
 import io.github.WesleyPatrick.stock_api.domain.model.Product;
 import io.github.WesleyPatrick.stock_api.infra.repository.ProductRepository;
 import io.github.WesleyPatrick.stock_api.web.controller.commons.BaseController;
@@ -40,13 +37,17 @@ public class ProductController implements BaseController {
     private FindProductByIdUseCase findProductByIdUseCase;
     private FindAllProductsUseCase findAllProductsUseCase;
     private DeleteProductUseCase deleteProductUseCase;
+    private DeactivateProductUseCase deactivateProductUseCase;
 
-    public ProductController(CreateProductUseCase createProductUseCase,  FindProductByIdUseCase findProductByIdUseCase, FindAllProductsUseCase findAllProductsUseCase,  DeleteProductUseCase deleteProductUseCase)
+    public ProductController(CreateProductUseCase createProductUseCase,  FindProductByIdUseCase findProductByIdUseCase,
+                             FindAllProductsUseCase findAllProductsUseCase,  DeleteProductUseCase deleteProductUseCase,
+                             DeactivateProductUseCase deactivateProductUseCase)
     {
         this.createProductUseCase = createProductUseCase;
         this.findProductByIdUseCase = findProductByIdUseCase;
         this.findAllProductsUseCase = findAllProductsUseCase;
         this.deleteProductUseCase = deleteProductUseCase;
+        this.deactivateProductUseCase = deactivateProductUseCase;
     }
 
     @Operation(summary = "Criar produto")
@@ -111,5 +112,19 @@ public class ProductController implements BaseController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Desativar produto"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Produto desativado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+            @ApiResponse(responseCode = "409", description = "Produto já está desativado"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado")
+    })
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<Void> deactivate(@PathVariable UUID id) {
+        deactivateProductUseCase.execute(id);
+        return ResponseEntity.noContent().build();
+    }
 
 }
